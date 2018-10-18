@@ -80,8 +80,6 @@ function becopay_config()
  */
 function becopay_link($params)
 {
-
-    echo json_encode($params);
     if (false === isset($params) || true === empty($params)) {
         die('[ERROR] In modules/gateways/becopay.php::becopay_link() function: Missing or invalid $params data.');
     }
