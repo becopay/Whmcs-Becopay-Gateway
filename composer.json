@@ -1,0 +1,35 @@
+{
+  "name": "becoapy/Whmcs-Becopay-Gateway",
+  "description": "becopay whmcs payment gateway",
+  "keywords": [
+    "payment","gateway","payment gateway",
+    "becopay","whmcs",
+    "web host automation platform",
+    "third party gateway module",
+    "gateway module",
+    "third party gateway"
+  ],
+  "homepage": "https://becopay.com/en/io",
+  "version" : "1.0.0",
+  "config": {
+    "vendor-dir": "modules/gateways/becopay/lib"
+  },
+  "sections" : {
+    "description" : "becopay woocommerce payment gateway"
+  },
+  "support": {
+    "issues": "https://github.com/becopay/Whmcs-Becopay-Gateway/issues"
+  },
+  "require": {
+    "php": ">=5.3.0",
+    "becopay/invoice_sdk_php": "^1.0"
+  },
+  "license": "Apache-2.0",
+  "authors": [
+    {
+      "name": "becopat team",
+      "email": "io@becopay.com"
+    }
+  ],
+  "minimum-stability": "dev"
+}
