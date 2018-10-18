@@ -80,18 +80,29 @@ function becopay_config()
  */
 function becopay_link($params)
 {
+
+    echo json_encode($params);
     if (false === isset($params) || true === empty($params)) {
         die('[ERROR] In modules/gateways/becopay.php::becopay_link() function: Missing or invalid $params data.');
     }
 
     // Invoice Variables
-    $invoiceid = $params['invoiceid'];
+    $invoiceId = $params['invoiceid'];
 
     // System Variables
     $systemurl = $params['systemurl'];
 
+    $description = array(
+        'User Email:'.$params['clientdetails']['email'],
+        'InvoiceId:'.$params["invoiceid"],
+        'Amount:'.$params["amount"],
+        'Description:'.$params["description"],
+    );
+
     $post = array(
-        'invoiceId' => $invoiceid,
+        'invoiceId' => $invoiceId,
+        'returnUrl' => $params['returnurl'],
+        'description'=>implode(', ',$description)
     );
 
     $form = '<form action="' . $systemurl . 'modules/gateways/becopay/createInvoice.php" method="POST">';
