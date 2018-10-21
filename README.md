@@ -61,4 +61,4 @@ This open source project is released under the [Apache 2.0 license](https://open
 
 ## License
 
-Please refer to the [LICENSE](https://github.com/becopay/Whmcs-Becopay-Gateway/LICENSE.txt) file that came with this project.
+Please refer to the [LICENSE](https://github.com/becopay/Woocommerce-Becopay-Gateway/blob/master/LICENSE.txt) file that came with this project.
