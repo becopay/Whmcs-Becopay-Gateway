@@ -93,7 +93,7 @@ class PaymentGateway implements PaymentGatewayInterface
             return false;
 
         $param = array(
-            "apiKey" => $this->apiKey,
+            "apikey" => $this->apiKey,
             "mobile" => $this->mobile,
             "description" => $description,
             "orderId" => $orderId,
@@ -174,7 +174,7 @@ class PaymentGateway implements PaymentGatewayInterface
             return false;
 
         $param = array(
-            "apiKey" => $this->apiKey,
+            "apikey" => $this->apiKey,
             "mob" => $this->mobile,
             "id" => $orderId
         );

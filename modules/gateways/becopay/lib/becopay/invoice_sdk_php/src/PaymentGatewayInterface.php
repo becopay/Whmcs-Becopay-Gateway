@@ -35,10 +35,17 @@ interface PaymentGatewayInterface
     public function create($orderId,$price,$description);
 
     /**
-     * Check the payment status
+     * Check the payment status with invoiceId
      * @param string $invoiceId
      * @return object
      */
     public function check($invoiceId);
+
+    /**
+     * Check the payment status with orderId
+     * @param string $invoiceId
+     * @return object
+     */
+    public function checkByOrderId($invoiceId);
 
 }
