@@ -27,6 +27,8 @@ modules/folder).
 
 You're done!
 
+## Callback url
+Plugin Callback url is `http://your-site/modules/gateways/callback/becopay.php?orderId=`
 
 ## Usage
 
