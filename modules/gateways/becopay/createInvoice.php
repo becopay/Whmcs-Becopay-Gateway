@@ -37,26 +37,32 @@ getParameter($_POST);
 function getParameter($param)
 {
     if (isset($param['invoiceId']) && isset($param['returnUrl']))
-        createInvoice((int)$param['invoiceId'],$param['description'],$param['returnUrl']);
+        createInvoice((int)$param['invoiceId'], $param['description'], $param['returnUrl']);
     else {
         error_log('[ERROR] In modules/gateways/becopay/createInvoice.php: undefined invoiceId or returnUrl #');
         die();
     }
 }
 
+
 /**
  * Create payment invoice and redirect to gateway for payment action
+ *
  * @param $invoiceId
  * @param $description
  * @param $returnUrl
+ * @return bool
  */
-function createInvoice($invoiceId,$description,$returnUrl)
+function createInvoice($invoiceId, $description, $returnUrl)
 {
+
+
+
     //get invoice info
     $invoice = getInvoiceInfo($invoiceId);
 
     //check invoice payment status is not paid
-    if($invoice['status'] != 'Unpaid'){
+    if ($invoice['status'] != 'Unpaid') {
         header('Location: ' . $returnUrl);
         exit;
     }
@@ -67,28 +73,42 @@ function createInvoice($invoiceId,$description,$returnUrl)
     $GATEWAY = getConfig();
 
     $paymentInvoiceId = uniqid($invoiceId . '-');
-    $total = intval($invoice['total']);
+    $total = floatval($invoice['total']);
+    $currency = $invoice['code'];
+    $merchantCurrency = $GATEWAY['merchantCurrency']?:DEFAULT_MERCHANT_CURRENCY;
 
     try {
         $payment = new PaymentGateway($GATEWAY['apiBaseUrl'], $GATEWAY['apiKey'], $GATEWAY['mobile']);
 
-        $paymentInvoice = $payment->create((string)$paymentInvoiceId, $total,(string)$description);
+        $paymentInvoice = $payment->create((string)$paymentInvoiceId, $total, (string)$description, $currency, $merchantCurrency);
 
         if ($paymentInvoice) {
-            header('Location: ' . $paymentInvoice->gatewayUrl);
+            //validate the invoice response
+            if (
+                $currency != $paymentInvoice->payerCur ||
+                $total != $paymentInvoice->payerAmount ||
+                $merchantCurrency != $paymentInvoice->merchantCur
+            )
+            {
+                error_log('[ERROR] In modules/gateways/becopay/createInvoice.php: line 91, Invoice price is not same with gateway result');
+                return display_error($returnUrl);
+            }
+
+                header('Location: ' . $paymentInvoice->gatewayUrl);
             exit;
         } else {
-            error_log('[ERROR] In modules/gateways/becopay/createInvoice.php: line 67, ' . $payment->error . ' #' . $invoiceId);
-            die();
+            error_log('[ERROR] In modules/gateways/becopay/createInvoice.php: line 98, ' . $payment->error . ' #' . $invoiceId);
+            return display_error($returnUrl);
         }
     } catch (\Exception $e) {
-        error_log('[ERROR] In modules/gateways/becopay/createInvoice.php: line 71, ' . $e->getMessage() . ' #' . $invoiceId);
-        die();
+        error_log('[ERROR] In modules/gateways/becopay/createInvoice.php: line 102, ' . $e->getMessage() . ' #' . $invoiceId);
+            return display_error($returnUrl);
     }
 }
 
 /**
  * Get invoice information form database
+ *
  * @param $invoiceId
  * @return array
  */
@@ -108,7 +128,8 @@ function getInvoiceInfo($invoiceId)
  *
  * Retrieves configuration setting values for a given module name.
  */
-function getConfig(){
+function getConfig()
+{
     $gatewayModule = 'becopay';
     /**
      * Get Becopay Gateway Variables.
@@ -124,4 +145,19 @@ function getConfig(){
     }
 
     return $gatewayParams;
+}
+
+
+/**
+ * Display error
+ * @param $backLink
+ * @return bool
+ */
+function display_error($backLink)
+{
+    echo '<div style="text-align:center">' .
+        '<p>Error on redirect to gateway</p>' .
+        '<a href="' . $backLink . '">back to invoice page</a>'
+        . '</div>';
+    return true;
 }

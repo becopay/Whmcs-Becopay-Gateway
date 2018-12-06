@@ -47,8 +47,10 @@ try {
     /*
      * This function is used to create an invoice.
      * Return result data type is object
+	 *
+	 *	Note: default value of `merchantCur`and `currency` currency is 'IRR'  
      */ 
-    $invoice = $payment->create('order id','price','description');
+    $invoice = $payment->create('order id','price','description','currency','merchantCur');
     if($invoice)
     {
         /*
@@ -87,10 +89,13 @@ Response
     "shopName": "New Shop",
     "status": "waiting",
     "remaining": 40,
-    "symbol": "IRR",
-    "price": 15000,
+    "payerAmount": 15000,
+    "payerCur": "IRR",
+    "merchantAmount": 15000,
+    "merchantCur": "IRR",
     "date": "2018-10-13 06:45:36",
     "timestamp": 1539413136148,
+    "timeout": 40,
     "description": "test payment",
     "gatewayUrl": "https://gateway.url.com/invoice/ID29_61a5",
     "callback": "http://www.your-website.com/invoice?orderid=12324320",
@@ -156,12 +161,13 @@ Response
 {
     "id": "ID29_61a5",
     "shopName": "New Shop",
-    "status": "waiting",
-    "remaining": 40,
-    "symbol": "IRR",
-    "price": 15000,
+    "status": "success",
+    "remaining": 30,
+    "payerAmount": 15000,
+    "payerCur": "IRR",
     "date": "2018-10-13 06:45:36",
     "timestamp": 1539413136148,
+    "timeout": 40,
     "description": "test payment",
     "gatewayUrl": "https://gateway.url.com/invoice/ID29_61a5",
     "callback": "http://www.your-website.com/invoice?orderid=12324320",
@@ -226,12 +232,15 @@ Response
 {
     "id": "ID29_61a5",
     "shopName": "New Shop",
-    "status": "waiting",
-    "remaining": 40,
-    "symbol": "IRR",
-    "price": 15000,
+    "status": "success",
+    "remaining": 30,
+    "payerAmount": 15000,
+    "payerCur": "IRR",
+    "merchantAmount": 15000,
+    "merchantCur": "IRR",
     "date": "2018-10-13 06:45:36",
     "timestamp": 1539413136148,
+    "timeout": 40,
     "description": "test payment",
     "gatewayUrl": "https://gateway.url.com/invoice/ID29_61a5",
     "callback": "http://www.your-website.com/invoice?orderid=12324320",
