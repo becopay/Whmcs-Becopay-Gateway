@@ -83,7 +83,7 @@ function invoiceProcess($paymentInvoiceId)
         /**
          * Check invoice payment status on becopay gateway
          */
-        $checkInvoice = $payment->check($paymentInvoiceId, true);
+        $checkInvoice = $payment->checkByOrderId($paymentInvoiceId);
 
         //if have response
         if ($checkInvoice) {
@@ -94,7 +94,7 @@ function invoiceProcess($paymentInvoiceId)
              */
             if ($checkInvoice->status != 'success') {
                 error_log('transaction status is ' . $checkInvoice->status);
-                logTransaction($GATEWAY['name'], $_GET, 'transaction status is ' . $checkInvoice->status);
+                logTransaction($GATEWAY['name'], (array)$checkInvoice, 'transaction status is ' . $checkInvoice->status);
                 return;
             }
 
@@ -102,10 +102,18 @@ function invoiceProcess($paymentInvoiceId)
              * Check invoice price
              * if not same error set log and return
              */
-            if (intval($invoice['total']) != $checkInvoice->price) {
+            $total = floatval($invoice['total']);
+            $currency = $invoice['code'];
+            $merchantCurrency = $GATEWAY['merchantCurrency']?:DEFAULT_MERCHANT_CURRENCY;
+
+            if (
+                $currency != $checkInvoice->payerCur ||
+                $total != $checkInvoice->payerAmount ||
+                $merchantCurrency != $checkInvoice->merchantCur
+            ) {
                 error_log('transaction price is not same,invoice price:' . intval($invoice['total']) .
                     ' ,callback response:' . json_encode($checkInvoice));
-                logTransaction($GATEWAY['name'], $checkInvoice, 'transaction status is ' . $checkInvoice->status);
+                logTransaction($GATEWAY['name'], (array)$checkInvoice, 'transaction status is ' . $checkInvoice->status);
                 return;
             }
 
@@ -124,7 +132,7 @@ function invoiceProcess($paymentInvoiceId)
              *
              * Add an entry to the Gateway Log for debugging purposes.
              */
-            logTransaction($GATEWAY['name'], $_GET, 'The payment has been received. This will be updated when the transaction has been completed.');
+            logTransaction($GATEWAY['name'], (array)$checkInvoice, 'The payment has been received. This will be updated when the transaction has been completed.');
 
             /**
              * Set user default gateway to becopay
@@ -134,12 +142,13 @@ function invoiceProcess($paymentInvoiceId)
             addInvoicePayment(
                 $invoiceId,
                 $checkInvoice->id,
-                $checkInvoice->price,
+                $checkInvoice->payerAmount,
                 0,
                 $GATEWAY['paymentmethod']
             );
 
-            logTransaction($GATEWAY['name'], $_GET, 'The transaction is now complete.');
+            logTransaction($GATEWAY['name'], (array)$checkInvoice,
+                'The transaction is now complete. merchant receive '.$checkInvoice->merchantAmount. ' '. $checkInvoice->merchantCur);
 
             //redirect to view invoice page
             Header('Location: ' . $CONFIG['SystemURL'] . '/viewinvoice.php?id=' . $invoiceId);

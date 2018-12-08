@@ -7,6 +7,12 @@ if (!defined("WHMCS")) {
     die("This file cannot be accessed directly");
 }
 
+
+/**
+ * Default merchant currency
+ */
+
+Const DEFAULT_MERCHANT_CURRENCY = 'IRR';
 /**
  * Define module related meta data.
  *
@@ -61,6 +67,13 @@ function becopay_config()
             'Type' => 'text',
             'Description' => 'Enter your Becopay Api Key her',
         ),
+        'merchantCurrency' => array(
+            'FriendlyName' => 'Merchant Currency',
+            'Type' => 'text',
+            'Description' => 'Enter your currency want to receive money. eg. IRR, US, EUR',
+            'Default' => DEFAULT_MERCHANT_CURRENCY,
+            'Placeholder'=>DEFAULT_MERCHANT_CURRENCY
+        ),
     );
 }
 
@@ -93,7 +106,7 @@ function becopay_link($params)
     $description = array(
         'User Email:'.$params['clientdetails']['email'],
         'InvoiceId:'.$params["invoiceid"],
-        'Amount:'.$params["amount"],
+        'Amount:'.$params["amount"].' '.$params["currency"],
         'Description:'.$params["description"],
     );
 

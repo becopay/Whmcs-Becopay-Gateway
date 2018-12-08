@@ -1,0 +1,18 @@
+# Select image from https://hub.docker.com/_/php/
+image:
+    name: composer/composer:php5-alpine
+    entrypoint: [""]
+# Select what we should cache
+cache:
+  paths:
+  - vendor/
+before_script:
+- composer install --prefer-dist
+# Install all project dependencies
+
+test:
+  script:
+  - vendor/bin/phpunit --bootstrap vendor/autoload.php tests/
+  tags:
+  - docker
+  - alpine

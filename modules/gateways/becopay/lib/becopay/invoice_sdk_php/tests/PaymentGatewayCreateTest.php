@@ -1,7 +1,7 @@
 <?php
 /**
  * User: Becopay Team
- * Version 1.0.0
+ * Version 1.1.0
  * Date: 10/10/18
  * Time: 10:36 AM
  */
@@ -114,6 +114,43 @@ class PaymentGatewayCreateTest extends TestCase
                 'isAssertion' => false,
                 'test' => 'Test $description parameter with more than 255 character'
             ),
+            //Test create invoice with float
+            array(
+                'apiBaseUrl' => $this->config->API_BASE_URL,
+                'apiKey' => $this->config->API_KEY,
+                'mobile' => $this->config->MOBILE,
+                'orderId' => rand(),
+                'price' => 4166.4,
+                'merchantCur' => 'IRR',
+                'payerCur' => 'USD',
+                'description' => 'test order',
+                'isAssertion' => true,
+                'test' => 'Test create invoice with double price',
+                'response' => array(
+                    'id' => 'string',
+                    'shopName' => 'string',
+                    'status' => 'string',
+                    'remaining' => 'integer',
+                    'payerAmount' => '',
+                    'payerCur' => 'string',
+                    'merchantAmount' => '',
+                    'merchantCur' => 'string',
+                    'date' => 'string',
+                    'timestamp' => 'integer',
+                    'timeout' => 'integer',
+                    'description' => 'string',
+                    'gatewayUrl' => 'string',
+                    'callback' => 'string',
+                    'orderId' => 'string',
+                ),
+                'validate' => array(
+                    'payerAmount' => 'price',
+                    'payerCur' => 'payerCur',
+                    'merchantCur' => 'merchantCur',
+                    'orderId' => 'orderId',
+                    'description' => 'description'
+                )
+            ),
             //Test create invoice
             array(
                 'apiBaseUrl' => $this->config->API_BASE_URL,
@@ -121,9 +158,35 @@ class PaymentGatewayCreateTest extends TestCase
                 'mobile' => $this->config->MOBILE,
                 'orderId' => rand(),
                 'price' => 4166,
+                'merchantCur' => 'IRR',
+                'payerCur' => 'USD',
                 'description' => 'test order',
                 'isAssertion' => true,
-                'test' => 'Test create invoice'
+                'test' => 'Test create invoice',
+                'response' => array(
+                    'id' => 'string',
+                    'shopName' => 'string',
+                    'status' => 'string',
+                    'remaining' => 'integer',
+                    'payerAmount' => '',
+                    'payerCur' => 'string',
+                    'merchantAmount' => '',
+                    'merchantCur' => 'string',
+                    'date' => 'string',
+                    'timestamp' => 'integer',
+                    'timeout' => 'integer',
+                    'description' => 'string',
+                    'gatewayUrl' => 'string',
+                    'callback' => 'string',
+                    'orderId' => 'string',
+                ),
+                'validate' => array(
+                    'payerAmount' => 'price',
+                    'payerCur' => 'payerCur',
+                    'merchantCur' => 'merchantCur',
+                    'orderId' => 'orderId',
+                    'description' => 'description'
+                )
             )
         );
     }
@@ -145,8 +208,26 @@ class PaymentGatewayCreateTest extends TestCase
                     $data['mobile']
                 );
 
-                $result = $payment->create($data['orderId'], $data['price'], $data['description']);
+                $result = $payment->create($data['orderId'], $data['price'],
+                    $data['description'], $data['payerCur'], $data['merchantCur']);
 
+                if ($data['isAssertion'] && isset($data['response']) && $result) {
+                    foreach ($data['response'] as $key => $value) {
+                        if (!isset($result->$key))
+                            $this->assertTrue(false, 'dataSet "' . $data['test'] .
+                                ', undefined "' . $key . '" on response');
+                        else if (!empty($value) && gettype($result->$key) != $value)
+                            $this->assertTrue(false, 'dataSet "' . $data['test'] .
+                                ', "'.$key . '"  values is not ' . $value . ' on response'.
+                                ', type is '.gettype($result->$key));
+                    }
+
+                    //check validate dataset
+                    foreach ($data['validate'] as $res_value => $req_value)
+                        if($result->$res_value != $data[$req_value])
+                            $this->assertTrue(false, 'dataSet "' . $data['test'] .
+                                ', "' . $res_value . '" response value is not same with request value');
+                }
                 echo "\n" . $key . ' : ' . $data['test'];
                 $this->assertTrue(!empty($result) == $data['isAssertion']);
 

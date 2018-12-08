@@ -17,6 +17,7 @@ namespace Tests;
 class LoadConfig
 {
 
+    const ENV_PREFIX = 'BECOPAY_PHP_SDK_';
     /**
      * @var array
      */
@@ -60,8 +61,14 @@ class LoadConfig
     public function __get($name)
     {
         // TODO: Implement __get() method.
+        $name = self::ENV_PREFIX . $name;
+
         if (isset($this->config[$name]))
             return $this->config[$name];
+
+        if (getenv($name))
+            return getenv($name);
+
 
         return false;
     }
